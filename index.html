@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IB Manager Portal</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #22263a;
+      --border:    #2e3248;
+      --accent:    #4f7cff;
+      --accent2:   #7c3aed;
+      --green:     #10b981;
+      --amber:     #f59e0b;
+      --red:       #ef4444;
+      --text:      #e2e8f0;
+      --muted:     #8892a4;
+      --sidebar-w: 240px;
+      --header-h:  64px;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Screens ──────────────────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: flex; }
+
+    /* ── Auth screens ─────────────────────────────────────── */
+    #login-screen, #signup-screen {
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 60% 40%, #1a1f3a 0%, #0f1117 70%);
+    }
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    }
+    .auth-logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 28px;
+    }
+    .auth-logo .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: #fff;
+    }
+    .auth-logo span { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .auth-logo small { display: block; font-size: 11px; color: var(--muted); font-weight: 400; }
+    h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .auth-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .field input {
+      width: 100%; padding: 11px 14px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 14px; outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus { border-color: var(--accent); }
+    .field input::placeholder { color: var(--muted); }
+    .btn-primary {
+      width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #6a5aff);
+      color: #fff; font-size: 15px; font-weight: 600;
+      transition: opacity .2s, transform .1s;
+      margin-top: 4px;
+    }
+    .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .auth-footer { text-align: center; margin-top: 20px; font-size: 13px; color: var(--muted); }
+    .auth-footer a { color: var(--accent); text-decoration: none; font-weight: 500; cursor: pointer; }
+    .auth-footer a:hover { text-decoration: underline; }
+    .error-msg {
+      background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--red);
+      margin-bottom: 16px; display: none;
+    }
+
+    /* ── Dashboard screen ─────────────────────────────────── */
+    #dashboard-screen { flex-direction: row; min-height: 100vh; }
+
+    /* ── Sidebar ──────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w); min-height: 100vh;
+      background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .sidebar-logo .logo-text { font-size: 15px; font-weight: 700; }
+    .sidebar-logo .logo-text small { display: block; font-size: 10px; color: var(--muted); font-weight: 400; }
+    .nav-section { padding: 12px 12px 4px; }
+    .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 0 8px; margin-bottom: 6px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px; cursor: pointer;
+      font-size: 13.5px; color: var(--muted); transition: all .15s;
+      margin-bottom: 2px; text-decoration: none;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: rgba(79,124,255,.15); color: var(--accent); }
+    .nav-item .icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-item .badge {
+      margin-left: auto; background: var(--accent);
+      color: #fff; font-size: 10px; font-weight: 700;
+      padding: 2px 6px; border-radius: 10px;
+    }
+    .sidebar-bottom {
+      margin-top: auto; padding: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 8px; cursor: pointer;
+      transition: background .15s;
+    }
+    .sidebar-user:hover { background: var(--surface2); }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff;
+    }
+    .avatar.lg { width: 38px; height: 38px; font-size: 15px; }
+    .user-info .name { font-size: 13px; font-weight: 600; }
+    .user-info .role { font-size: 11px; color: var(--muted); }
+
+    /* ── Main area ────────────────────────────────────────── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+
+    /* ── Header ───────────────────────────────────────────── */
+    .header {
+      height: var(--header-h); background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 50;
+    }
+    .header-title { font-size: 17px; font-weight: 700; flex: 1; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface2); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 16px; transition: background .15s; position: relative;
+    }
+    .icon-btn:hover { background: var(--border); }
+    .notif-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+      position: absolute; top: 6px; right: 6px; border: 1.5px solid var(--surface);
+    }
+    .header-user { display: flex; align-items: center; gap: 9px; cursor: pointer; }
+    .header-user .name { font-size: 13.5px; font-weight: 600; }
+    .header-user .role { font-size: 11.5px; color: var(--muted); }
+    .date-badge {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 7px; padding: 5px 12px; font-size: 12.5px; color: var(--muted);
+    }
+
+    /* ── Content ──────────────────────────────────────────── */
+    .content { padding: 28px; flex: 1; overflow-y: auto; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .section-title { font-size: 14px; font-weight: 700; }
+    .view-all { font-size: 12.5px; color: var(--accent); cursor: pointer; text-decoration: none; }
+    .view-all:hover { text-decoration: underline; }
+
+    /* ── Stat cards ───────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .stat-card.blue::before   { background: linear-gradient(90deg, var(--accent), #6a5aff); }
+    .stat-card.green::before  { background: linear-gradient(90deg, var(--green), #34d399); }
+    .stat-card.amber::before  { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+    .stat-card.purple::before { background: linear-gradient(90deg, var(--accent2), #a855f7); }
+    .stat-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+    .stat-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 19px;
+    }
+    .stat-icon.blue   { background: rgba(79,124,255,.15); }
+    .stat-icon.green  { background: rgba(16,185,129,.15); }
+    .stat-icon.amber  { background: rgba(245,158,11,.15); }
+    .stat-icon.purple { background: rgba(124,58,237,.15); }
+    .stat-change {
+      font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: 6px;
+    }
+    .stat-change.up   { color: var(--green); background: rgba(16,185,129,.12); }
+    .stat-change.down { color: var(--red);   background: rgba(239,68,68,.12); }
+    .stat-value { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+    .stat-label { font-size: 12.5px; color: var(--muted); }
+    .stat-sub   { font-size: 12px; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .stat-sub span { color: var(--text); font-weight: 600; }
+
+    /* ── Two-col row ──────────────────────────────────────── */
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 900px) { .row-2 { grid-template-columns: 1fr; } }
+
+    /* ── Panel ────────────────────────────────────────────── */
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px;
+    }
+    .panel-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+
+    /* ── Leads table ──────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); text-align: left; padding: 0 0 10px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 0; border-bottom: 1px solid rgba(46,50,72,.5); font-size: 13px; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .lead-name { font-weight: 600; }
+    .lead-email { font-size: 12px; color: var(--muted); }
+    .status-pill {
+      display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px;
+    }
+    .status-pill.new       { color: var(--accent); background: rgba(79,124,255,.12); }
+    .status-pill.contacted { color: var(--amber); background: rgba(245,158,11,.12); }
+    .status-pill.converted { color: var(--green); background: rgba(16,185,129,.12); }
+    .status-pill.lost      { color: var(--red); background: rgba(239,68,68,.12); }
+
+    /* ── Partner list ─────────────────────────────────────── */
+    .partner-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid rgba(46,50,72,.5);
+    }
+    .partner-item:last-child { border-bottom: none; }
+    .partner-avatar {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff;
+    }
+    .partner-info { flex: 1; }
+    .partner-name { font-size: 13px; font-weight: 600; }
+    .partner-meta { font-size: 11.5px; color: var(--muted); }
+    .partner-revenue { text-align: right; }
+    .partner-revenue .amount { font-size: 13.5px; font-weight: 700; }
+    .partner-revenue .clients { font-size: 11.5px; color: var(--muted); }
+    .progress-bar { height: 4px; border-radius: 2px; background: var(--surface2); margin-top: 4px; }
+    .progress-fill { height: 100%; border-radius: 2px; }
+
+    /* ── Funnel chart ─────────────────────────────────────── */
+    .funnel { display: flex; flex-direction: column; gap: 8px; }
+    .funnel-step { display: flex; align-items: center; gap: 12px; }
+    .funnel-label { font-size: 12.5px; color: var(--muted); width: 90px; flex-shrink: 0; }
+    .funnel-bar-wrap { flex: 1; height: 28px; background: var(--surface2); border-radius: 6px; overflow: hidden; }
+    .funnel-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 10px; font-size: 12px; font-weight: 700; color: #fff; transition: width .8s ease; }
+    .funnel-count { font-size: 13px; font-weight: 700; width: 40px; text-align: right; }
+
+    /* ── Revenue mini chart (CSS bars) ───────────────────── */
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-top: 4px; }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+    .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height .6s ease; min-height: 4px; }
+    .bar-label { font-size: 10px; color: var(--muted); }
+
+    /* ── Alert / notice banner ────────────────────────────── */
+    .notice {
+      background: rgba(79,124,255,.08); border: 1px solid rgba(79,124,255,.25);
+      border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--accent);
+      display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+    }
+    .notice strong { color: var(--text); }
+
+    /* ── Logout btn ───────────────────────────────────────── */
+    .logout-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 12px; border-radius: 8px; cursor: pointer;
+      font-size: 13.5px; color: var(--muted); transition: all .15s; width: 100%;
+      background: none; border: none; margin-top: 4px;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,.1); color: var(--red); }
+
+    /* ── Scrollbar ────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════ LOGIN SCREEN ════════════ -->
+<div id="login-screen" class="screen active">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-icon">FX</div>
+      <div>
+        <span>ForexIB Portal</span>
+        <small>Partner Management Platform</small>
+      </div>
+    </div>
+    <h2>Welcome back</h2>
+    <p class="auth-sub">Sign in to your IB Manager account</p>
+    <div class="error-msg" id="login-error">Invalid email or password. Please try again.</div>
+    <div class="field">
+      <label>Email address</label>
+      <input type="email" id="login-email" placeholder="you@example.com" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••" />
+    </div>
+    <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+    <div class="auth-footer">
+      Don't have an account? <a onclick="showScreen('signup')">Sign Up</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ SIGN UP SCREEN ════════════ -->
+<div id="signup-screen" class="screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-icon">FX</div>
+      <div>
+        <span>ForexIB Portal</span>
+        <small>Partner Management Platform</small>
+      </div>
+    </div>
+    <h2>Create account</h2>
+    <p class="auth-sub">Join as an IB Manager</p>
+    <div class="error-msg" id="signup-error">Please fill in all fields.</div>
+    <div class="field">
+      <label>Full name</label>
+      <input type="text" id="signup-name" placeholder="Alex Johnson" />
+    </div>
+    <div class="field">
+      <label>Email address</label>
+      <input type="email" id="signup-email" placeholder="you@example.com" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="signup-password" placeholder="Min. 8 characters" />
+    </div>
+    <button class="btn-primary" onclick="handleSignup()">Create Account</button>
+    <div class="auth-footer">
+      Already have an account? <a onclick="showScreen('login')">Sign In</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ DASHBOARD SCREEN ════════════ -->
+<div id="dashboard-screen" class="screen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">FX</div>
+      <div class="logo-text">
+        ForexIB Portal
+        <small>Partner Platform</small>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <a class="nav-item active" onclick="setNav(this, 'dashboard')">
+        <span class="icon">&#9783;</span> Dashboard
+      </a>
+      <a class="nav-item" onclick="setNav(this, 'leads')">
+        <span class="icon">&#128100;</span> Leads
+        <span class="badge">14</span>
+      </a>
+      <a class="nav-item" onclick="setNav(this, 'conversions')">
+        <span class="icon">&#9654;</span> Conversions
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Finance</div>
+      <a class="nav-item" onclick="setNav(this, 'revenue')">
+        <span class="icon">&#36;</span> Revenue
+      </a>
+      <a class="nav-item" onclick="setNav(this, 'commissions')">
+        <span class="icon">&#128176;</span> Commissions
+      </a>
+      <a class="nav-item" onclick="setNav(this, 'payouts')">
+        <span class="icon">&#10140;</span> Payouts
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Partners</div>
+      <a class="nav-item" onclick="setNav(this, 'partners')">
+        <span class="icon">&#128101;</span> My Partners
+      </a>
+      <a class="nav-item" onclick="setNav(this, 'performance')">
+        <span class="icon">&#128202;</span> Performance
+      </a>
+      <a class="nav-item" onclick="setNav(this, 'reports')">
+        <span class="icon">&#128196;</span> Reports
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Account</div>
+      <a class="nav-item" onclick="setNav(this, 'settings')">
+        <span class="icon">&#9881;</span> Settings
+      </a>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="avatar" id="sidebar-avatar">AJ</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-name">Alex Johnson</div>
+          <div class="role">IB Manager</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="handleLogout()">
+        <span>&#8594;</span> Log out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-title" id="header-title">Dashboard Overview</div>
+      <div class="header-actions">
+        <div class="date-badge" id="header-date"></div>
+        <div class="icon-btn" title="Notifications">
+          &#128276;
+          <span class="notif-dot"></span>
+        </div>
+        <div class="header-user">
+          <div class="avatar lg" id="header-avatar">AJ</div>
+          <div>
+            <div class="name" id="header-name">Alex Johnson</div>
+            <div class="role">IB Manager</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- Notice -->
+      <div class="notice">
+        &#9432;&nbsp; <strong>3 new leads</strong> assigned to you today — review and follow up to boost this week's conversion rate.
+      </div>
+
+      <!-- KPI Stat Cards -->
+      <div class="section-header">
+        <div class="section-title">Key Metrics — April 2026</div>
+        <a class="view-all">View full report &#8594;</a>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-header">
+            <div class="stat-icon blue">&#128100;</div>
+            <span class="stat-change up">&#9650; 12%</span>
+          </div>
+          <div class="stat-value">347</div>
+          <div class="stat-label">Total Leads</div>
+          <div class="stat-sub">This month: <span>+42</span> &nbsp;|&nbsp; Today: <span>+3</span></div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-header">
+            <div class="stat-icon green">&#9654;</div>
+            <span class="stat-change up">&#9650; 4.2%</span>
+          </div>
+          <div class="stat-value">28.4%</div>
+          <div class="stat-label">Conversion Rate</div>
+          <div class="stat-sub">Converted: <span>98</span> &nbsp;|&nbsp; Target: <span>30%</span></div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-header">
+            <div class="stat-icon amber">&#36;</div>
+            <span class="stat-change up">&#9650; 8.7%</span>
+          </div>
+          <div class="stat-value">$18,240</div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-sub">Commission earned: <span>$3,648</span> &nbsp;(20%)</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-header">
+            <div class="stat-icon purple">&#128101;</div>
+            <span class="stat-change down">&#9660; 2</span>
+          </div>
+          <div class="stat-value">24</div>
+          <div class="stat-label">Active Partners</div>
+          <div class="stat-sub">Total IB network: <span>31</span> &nbsp;|&nbsp; Pending: <span>4</span></div>
+        </div>
+      </div>
+
+      <!-- Row 2: Funnel + Partner Performance -->
+      <div class="row-2">
+
+        <!-- Lead Funnel -->
+        <div class="panel">
+          <div class="panel-title">&#128202; Lead Conversion Funnel</div>
+          <div class="funnel">
+            <div class="funnel-step">
+              <div class="funnel-label">New Leads</div>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar" style="width:100%; background: linear-gradient(90deg,#4f7cff,#6a5aff);">347</div>
+              </div>
+              <div class="funnel-count">347</div>
+            </div>
+            <div class="funnel-step">
+              <div class="funnel-label">Contacted</div>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar" style="width:74%; background: linear-gradient(90deg,#7c3aed,#a855f7);">256</div>
+              </div>
+              <div class="funnel-count">256</div>
+            </div>
+            <div class="funnel-step">
+              <div class="funnel-label">Qualified</div>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar" style="width:44%; background: linear-gradient(90deg,#f59e0b,#fbbf24);">153</div>
+              </div>
+              <div class="funnel-count">153</div>
+            </div>
+            <div class="funnel-step">
+              <div class="funnel-label">Deposited</div>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar" style="width:28%; background: linear-gradient(90deg,#10b981,#34d399);">98</div>
+              </div>
+              <div class="funnel-count">98</div>
+            </div>
+            <div class="funnel-step">
+              <div class="funnel-label">Active</div>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar" style="width:18%; background: linear-gradient(90deg,#06b6d4,#22d3ee);">64</div>
+              </div>
+              <div class="funnel-count">64</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue chart -->
+        <div class="panel">
+          <div class="panel-title">&#128176; Monthly Revenue</div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+            <span style="font-size:24px;font-weight:800;letter-spacing:-1px;">$18,240</span>
+            <span style="font-size:12px;color:var(--green);font-weight:600;">&#9650; $1,460 vs last month</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Commission payout: $3,648</div>
+          <div class="bar-chart">
+            <div class="bar-wrap"><div class="bar" style="height:45%;background:var(--surface2)"></div><div class="bar-label">Oct</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:55%;background:var(--surface2)"></div><div class="bar-label">Nov</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:48%;background:var(--surface2)"></div><div class="bar-label">Dec</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:62%;background:var(--surface2)"></div><div class="bar-label">Jan</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:70%;background:var(--surface2)"></div><div class="bar-label">Feb</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:78%;background:var(--surface2)"></div><div class="bar-label">Mar</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:100%;background:linear-gradient(0deg,#4f7cff,#7c3aed)"></div><div class="bar-label" style="color:var(--accent);font-weight:700;">Apr</div></div>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+            <div style="font-size:12px;color:var(--muted);">Avg/month: <strong style="color:var(--text);">$14,880</strong></div>
+            <div style="font-size:12px;color:var(--muted);">YTD: <strong style="color:var(--text);">$89,280</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Recent Leads + Top Partners -->
+      <div class="row-2">
+
+        <!-- Recent Leads -->
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div class="panel-title" style="margin-bottom:0">&#128100; Recent Leads</div>
+            <a class="view-all">See all 347 &#8594;</a>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Source</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="lead-name">Sarah Mitchell</div><div class="lead-email">s.mitchell@mail.com</div></td>
+                <td style="color:var(--muted);font-size:12px;">Referral</td>
+                <td><span class="status-pill new">New</span></td>
+                <td style="color:var(--muted);font-size:12px;">Today</td>
+              </tr>
+              <tr>
+                <td><div class="lead-name">Carlos Reyes</div><div class="lead-email">c.reyes@inbox.io</div></td>
+                <td style="color:var(--muted);font-size:12px;">Landing Page</td>
+                <td><span class="status-pill contacted">Contacted</span></td>
+                <td style="color:var(--muted);font-size:12px;">Today</td>
+              </tr>
+              <tr>
+                <td><div class="lead-name">Lin Wei</div><div class="lead-email">linwei88@fx.net</div></td>
+                <td style="color:var(--muted);font-size:12px;">Partner IB-07</td>
+                <td><span class="status-pill converted">Converted</span></td>
+                <td style="color:var(--muted);font-size:12px;">Apr 7</td>
+              </tr>
+              <tr>
+                <td><div class="lead-name">Ahmed Hassan</div><div class="lead-email">a.hassan@trade.ae</div></td>
+                <td style="color:var(--muted);font-size:12px;">Social Media</td>
+                <td><span class="status-pill contacted">Contacted</span></td>
+                <td style="color:var(--muted);font-size:12px;">Apr 6</td>
+              </tr>
+              <tr>
+                <td><div class="lead-name">Priya Nair</div><div class="lead-email">priya.n@webmail.in</div></td>
+                <td style="color:var(--muted);font-size:12px;">Organic Search</td>
+                <td><span class="status-pill lost">Lost</span></td>
+                <td style="color:var(--muted);font-size:12px;">Apr 5</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Top Partners -->
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div class="panel-title" style="margin-bottom:0">&#128101; Top Partners</div>
+            <a class="view-all">All 24 &#8594;</a>
+          </div>
+          <div>
+            <div class="partner-item">
+              <div class="partner-avatar" style="background:linear-gradient(135deg,#4f7cff,#7c3aed)">MK</div>
+              <div class="partner-info">
+                <div class="partner-name">Mohamed Khalil</div>
+                <div class="partner-meta">IB-03 &nbsp;·&nbsp; 42 active clients</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:88%;background:linear-gradient(90deg,#4f7cff,#7c3aed)"></div></div>
+              </div>
+              <div class="partner-revenue">
+                <div class="amount">$4,820</div>
+                <div class="clients">this month</div>
+              </div>
+            </div>
+            <div class="partner-item">
+              <div class="partner-avatar" style="background:linear-gradient(135deg,#10b981,#06b6d4)">JT</div>
+              <div class="partner-info">
+                <div class="partner-name">Julia Torres</div>
+                <div class="partner-meta">IB-07 &nbsp;·&nbsp; 35 active clients</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:72%;background:linear-gradient(90deg,#10b981,#06b6d4)"></div></div>
+              </div>
+              <div class="partner-revenue">
+                <div class="amount">$3,940</div>
+                <div class="clients">this month</div>
+              </div>
+            </div>
+            <div class="partner-item">
+              <div class="partner-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">RK</div>
+              <div class="partner-info">
+                <div class="partner-name">Raj Kapoor</div>
+                <div class="partner-meta">IB-12 &nbsp;·&nbsp; 28 active clients</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:58%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div></div>
+              </div>
+              <div class="partner-revenue">
+                <div class="amount">$3,140</div>
+                <div class="clients">this month</div>
+              </div>
+            </div>
+            <div class="partner-item">
+              <div class="partner-avatar" style="background:linear-gradient(135deg,#a855f7,#ec4899)">NB</div>
+              <div class="partner-info">
+                <div class="partner-name">Nina Becker</div>
+                <div class="partner-meta">IB-19 &nbsp;·&nbsp; 21 active clients</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:44%;background:linear-gradient(90deg,#a855f7,#ec4899)"></div></div>
+              </div>
+              <div class="partner-revenue">
+                <div class="amount">$2,380</div>
+                <div class="clients">this month</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /dashboard -->
+
+<script>
+  // ── State ──────────────────────────────────────────────────
+  let currentUser = { name: 'Alex Johnson', email: 'alex@example.com' };
+
+  // ── Screen switching ────────────────────────────────────────
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(name + '-screen').classList.add('active');
+  }
+
+  // ── Login ───────────────────────────────────────────────────
+  function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-password').value;
+    const err   = document.getElementById('login-error');
+    if (!email || !pass) { err.style.display = 'block'; return; }
+    err.style.display = 'none';
+    const name = email.split('@')[0].replace(/[._-]/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase()) || 'Manager';
+    currentUser = { name, email };
+    applyUser(name);
+    showScreen('dashboard');
+  }
+
+  // ── Sign Up ─────────────────────────────────────────────────
+  function handleSignup() {
+    const name  = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const pass  = document.getElementById('signup-password').value;
+    const err   = document.getElementById('signup-error');
+    if (!name || !email || !pass) { err.style.display = 'block'; return; }
+    err.style.display = 'none';
+    currentUser = { name, email };
+    applyUser(name);
+    showScreen('dashboard');
+  }
+
+  // ── Apply user to UI ────────────────────────────────────────
+  function applyUser(name) {
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('sidebar-name').textContent  = name;
+    document.getElementById('header-name').textContent   = name;
+    document.getElementById('sidebar-avatar').textContent = initials;
+    document.getElementById('header-avatar').textContent  = initials;
+  }
+
+  // ── Logout ──────────────────────────────────────────────────
+  function handleLogout() {
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    showScreen('login');
+  }
+
+  // ── Nav ─────────────────────────────────────────────────────
+  const navTitles = {
+    dashboard:   'Dashboard Overview',
+    leads:       'Leads Management',
+    conversions: 'Conversion Tracking',
+    revenue:     'Revenue Analytics',
+    commissions: 'Commission Summary',
+    payouts:     'Payout History',
+    partners:    'My Partners',
+    performance: 'Performance Reports',
+    reports:     'Reports & Exports',
+    settings:    'Account Settings',
+  };
+  function setNav(el, key) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('header-title').textContent = navTitles[key] || key;
+  }
+
+  // ── Enter key support ────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const ls = document.getElementById('login-screen');
+    const ss = document.getElementById('signup-screen');
+    if (ls.classList.contains('active'))  handleLogin();
+    if (ss.classList.contains('active'))  handleSignup();
+  });
+
+  // ── Date ────────────────────────────────────────────────────
+  (function setDate() {
+    const d = new Date();
+    const s = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    document.getElementById('header-date').textContent = s;
+  })();
+</script>
+</body>
+</html>
