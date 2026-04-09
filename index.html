@@ -17,9 +17,7 @@
       </div>
       <h2>Welcome back</h2>
       <p class="subtitle">Sign in to your IB Partner Portal</p>
-
       <div class="error-msg" id="loginError"></div>
-
       <div class="form-group">
         <label>Email address</label>
         <input type="email" id="loginEmail" placeholder="you@example.com" />
@@ -28,9 +26,7 @@
         <label>Password</label>
         <input type="password" id="loginPassword" placeholder="••••••••" />
       </div>
-
       <button class="btn-primary" onclick="handleLogin()">Sign In</button>
-
       <div class="auth-footer">
         Don't have an account? <a href="#" onclick="showScreen('signup')">Sign Up</a>
       </div>
@@ -46,10 +42,8 @@
       </div>
       <h2>Create an account</h2>
       <p class="subtitle">Join the FXBridge IB Partner Program</p>
-
       <div class="success-msg" id="signupSuccess">Account created! Redirecting to login...</div>
       <div class="error-msg" id="signupError"></div>
-
       <div class="form-group">
         <label>Full name</label>
         <input type="text" id="signupName" placeholder="Alex Johnson" />
@@ -62,9 +56,7 @@
         <label>Password</label>
         <input type="password" id="signupPassword" placeholder="Min. 8 characters" />
       </div>
-
       <button class="btn-primary" onclick="handleSignup()">Create Account</button>
-
       <div class="auth-footer">
         Already have an account? <a href="#" onclick="showScreen('login')">Sign In</a>
       </div>
@@ -83,50 +75,50 @@
 
       <div class="nav-section">
         <div class="nav-section-label">Overview</div>
-        <div class="nav-item active" onclick="setNav(this)">
+        <div class="nav-item" data-page="dashboard" onclick="navigate('dashboard', this)">
           <span class="nav-icon">📊</span> Dashboard
         </div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="clients" onclick="navigate('clients', this)">
           <span class="nav-icon">👥</span> My Clients
           <span class="nav-badge">3</span>
         </div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="trading" onclick="navigate('trading', this)">
           <span class="nav-icon">📈</span> Trading Activity
         </div>
       </div>
 
       <div class="nav-section">
         <div class="nav-section-label">Earnings</div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="commission" onclick="navigate('commission', this)">
           <span class="nav-icon">💰</span> Commission Report
         </div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="rebate" onclick="navigate('rebate', this)">
           <span class="nav-icon">🔄</span> Rebate Calculator
         </div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="statements" onclick="navigate('statements', this)">
           <span class="nav-icon">🧾</span> Statements
         </div>
       </div>
 
       <div class="nav-section">
         <div class="nav-section-label">Growth</div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="referral" onclick="navigate('referral', this)">
           <span class="nav-icon">🔗</span> Referral Links
         </div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="network" onclick="navigate('network', this)">
           <span class="nav-icon">🤝</span> Partner Network
         </div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="marketing" onclick="navigate('marketing', this)">
           <span class="nav-icon">📣</span> Marketing Tools
         </div>
       </div>
 
       <div class="nav-section">
         <div class="nav-section-label">Account</div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="settings" onclick="navigate('settings', this)">
           <span class="nav-icon">⚙️</span> Settings
         </div>
-        <div class="nav-item" onclick="setNav(this)">
+        <div class="nav-item" data-page="support" onclick="navigate('support', this)">
           <span class="nav-icon">🛟</span> Support
         </div>
       </div>
@@ -138,18 +130,19 @@
       </div>
     </aside>
 
-    <!-- Main -->
+    <!-- Main Area -->
     <div class="main-area">
 
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <h1>IB Dashboard</h1>
+          <h1 id="pageTitle">IB Dashboard</h1>
           <p id="headerDate"></p>
         </div>
         <div class="header-right">
+          <button class="header-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">☀️</button>
           <button class="header-btn notif-dot" title="Notifications">🔔</button>
-          <div class="avatar-wrap">
+          <div class="avatar-wrap" onclick="navigate('profile', null)" title="My Profile">
             <div class="avatar" id="headerAvatar">AJ</div>
             <div class="avatar-info">
               <div class="name" id="headerName">Alex Johnson</div>
@@ -162,293 +155,476 @@
       <!-- Content -->
       <div class="content">
 
-        <!-- Period tabs -->
-        <div class="period-tabs">
-          <div class="period-tab" onclick="setPeriod(this)">Today</div>
-          <div class="period-tab active" onclick="setPeriod(this)">This Month</div>
-          <div class="period-tab" onclick="setPeriod(this)">Last Month</div>
-          <div class="period-tab" onclick="setPeriod(this)">YTD</div>
-        </div>
+        <!-- ══ DASHBOARD ══════════════════════════════════════════════════ -->
+        <div id="page-dashboard" class="page">
 
-        <!-- KPI Cards -->
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-label">Total Clients</div>
-              <div class="kpi-icon gold">👥</div>
-            </div>
-            <div class="kpi-value">147</div>
-            <div class="kpi-change up">▲ 12 new &nbsp;<span class="vs">vs last month</span></div>
+          <div class="period-tabs">
+            <div class="period-tab" onclick="setPeriod(this)">Today</div>
+            <div class="period-tab active" onclick="setPeriod(this)">This Month</div>
+            <div class="period-tab" onclick="setPeriod(this)">Last Month</div>
+            <div class="period-tab" onclick="setPeriod(this)">YTD</div>
           </div>
 
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-label">Commission Earned</div>
-              <div class="kpi-icon green">💵</div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header"><div class="kpi-label">Total Clients</div><div class="kpi-icon gold">👥</div></div>
+              <div class="kpi-value">147</div>
+              <div class="kpi-change up">▲ 12 new &nbsp;<span class="vs">vs last month</span></div>
             </div>
-            <div class="kpi-value">$8,342</div>
-            <div class="kpi-change up">▲ 18.4% &nbsp;<span class="vs">vs last month</span></div>
+            <div class="kpi-card">
+              <div class="kpi-header"><div class="kpi-label">Commission Earned</div><div class="kpi-icon green">💵</div></div>
+              <div class="kpi-value">$8,342</div>
+              <div class="kpi-change up">▲ 18.4% &nbsp;<span class="vs">vs last month</span></div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><div class="kpi-label">Active Traders</div><div class="kpi-icon blue">🔥</div></div>
+              <div class="kpi-value">63</div>
+              <div class="kpi-change down">▼ 4 &nbsp;<span class="vs">vs last month</span></div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><div class="kpi-label">Trading Volume</div><div class="kpi-icon gold">📉</div></div>
+              <div class="kpi-value">2.41M</div>
+              <div class="kpi-change up">▲ 7.2% &nbsp;<span class="vs">vs last month</span></div>
+            </div>
           </div>
 
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-label">Active Traders</div>
-              <div class="kpi-icon blue">🔥</div>
+          <div class="bottom-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Top Clients by Volume</span>
+                <span class="card-action" onclick="navigate('clients', document.querySelector('[data-page=clients]'))">View all →</span>
+              </div>
+              <table class="client-table">
+                <thead><tr><th>Client</th><th>Lots</th><th>Commission</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1c4f82;color:#58a6ff">DM</div>David Müller</div></td><td>382</td><td>$1,146</td><td><span class="status-pill active">● Active</span></td></tr>
+                  <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1b4332;color:#3fb950">SC</div>Sara Chen</div></td><td>295</td><td>$885</td><td><span class="status-pill active">● Active</span></td></tr>
+                  <tr><td><div class="client-name"><div class="mini-avatar" style="background:#3d1f00;color:#f0b429">JO</div>James O'Brien</div></td><td>218</td><td>$654</td><td><span class="status-pill active">● Active</span></td></tr>
+                  <tr><td><div class="client-name"><div class="mini-avatar" style="background:#2d1f3f;color:#bc8cff">PN</div>Priya Nair</div></td><td>140</td><td>$420</td><td><span class="status-pill pending">◐ Pending</span></td></tr>
+                  <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1c1c1c;color:#7d8590">TK</div>Tomás Kovář</div></td><td>88</td><td>$264</td><td><span class="status-pill inactive">○ Inactive</span></td></tr>
+                </tbody>
+              </table>
             </div>
-            <div class="kpi-value">63</div>
-            <div class="kpi-change down">▼ 4 &nbsp;<span class="vs">vs last month</span></div>
+
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Commission Breakdown</span>
+                <span class="card-action" onclick="navigate('commission', document.querySelector('[data-page=commission]'))">View report →</span>
+              </div>
+              <div class="commission-list">
+                <div class="commission-item"><div class="comm-left"><div class="comm-dot" style="background:#3fb950"></div><div><div class="comm-name">Spread Rebates</div><div class="comm-sub">FX Majors · 63 traders</div></div></div><div class="comm-amount" style="color:var(--green)">$4,190</div></div>
+                <div class="commission-item"><div class="comm-left"><div class="comm-dot" style="background:#f0b429"></div><div><div class="comm-name">Volume Commission</div><div class="comm-sub">Metals &amp; Indices</div></div></div><div class="comm-amount" style="color:var(--primary)">$2,740</div></div>
+                <div class="commission-item"><div class="comm-left"><div class="comm-dot" style="background:#58a6ff"></div><div><div class="comm-name">Sub-IB Override</div><div class="comm-sub">Tier 2 · 8 sub-IBs</div></div></div><div class="comm-amount" style="color:var(--blue)">$982</div></div>
+                <div class="commission-item"><div class="comm-left"><div class="comm-dot" style="background:#bc8cff"></div><div><div class="comm-name">New Client Bonus</div><div class="comm-sub">12 new deposits</div></div></div><div class="comm-amount" style="color:#bc8cff">$430</div></div>
+              </div>
+              <div class="payout-bar-wrap">
+                <div class="payout-bar-label">Payout progress this month <span>$8,342 / $10,000</span></div>
+                <div class="bar-track" style="height:10px;border-radius:6px"><div class="bar-fill" style="width:83.4%"></div></div>
+              </div>
+            </div>
           </div>
 
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-label">Trading Volume</div>
-              <div class="kpi-icon gold">📉</div>
+          <div class="bottom-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Volume by Instrument</span>
+                <span class="card-action" style="color:var(--text-muted);cursor:default">Lots traded</span>
+              </div>
+              <div class="bar-chart-wrap">
+                <div class="bar-row"><div class="bar-label">EUR/USD</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-val">682</div></div>
+                <div class="bar-row"><div class="bar-label">GBP/USD</div><div class="bar-track"><div class="bar-fill" style="width:74%"></div></div><div class="bar-val">505</div></div>
+                <div class="bar-row"><div class="bar-label">XAU/USD</div><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div><div class="bar-val">396</div></div>
+                <div class="bar-row"><div class="bar-label">USD/JPY</div><div class="bar-track"><div class="bar-fill" style="width:44%"></div></div><div class="bar-val">300</div></div>
+                <div class="bar-row"><div class="bar-label">US30</div><div class="bar-track"><div class="bar-fill" style="width:28%"></div></div><div class="bar-val">191</div></div>
+                <div class="bar-row"><div class="bar-label">Other</div><div class="bar-track"><div class="bar-fill" style="width:21%"></div></div><div class="bar-val">143</div></div>
+              </div>
             </div>
-            <div class="kpi-value">2.41M</div>
-            <div class="kpi-change up">▲ 7.2% &nbsp;<span class="vs">vs last month</span></div>
+
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Your Referral Link</span>
+                  <span class="card-action" onclick="navigate('referral', document.querySelector('[data-page=referral]'))">Manage links →</span>
+                </div>
+                <div class="referral-box">
+                  <div class="referral-url-wrap">
+                    <div class="referral-url">https://fxbridge.com/ref/IB-AJ-28471</div>
+                    <button class="copy-btn" onclick="copyRef(this)">Copy</button>
+                  </div>
+                  <div class="referral-stats">
+                    <div class="ref-stat"><div class="ref-stat-val" style="color:var(--primary)">312</div><div class="ref-stat-label">Link Clicks</div></div>
+                    <div class="ref-stat"><div class="ref-stat-val" style="color:var(--blue)">41</div><div class="ref-stat-label">Sign Ups</div></div>
+                    <div class="ref-stat"><div class="ref-stat-val" style="color:var(--green)">28</div><div class="ref-stat-label">Deposited</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><span class="card-title">Recent Alerts</span><span class="card-action">View all →</span></div>
+                <div class="alert-list">
+                  <div class="alert-item"><div class="alert-dot" style="background:var(--green)"></div><div><div class="alert-text">Commission payout of <strong>$4,190</strong> processed.</div><div class="alert-time">Today, 09:14</div></div></div>
+                  <div class="alert-item"><div class="alert-dot" style="background:var(--primary)"></div><div><div class="alert-text"><strong>Priya Nair</strong> completed KYC — now active.</div><div class="alert-time">Yesterday, 17:32</div></div></div>
+                  <div class="alert-item"><div class="alert-dot" style="background:var(--blue)"></div><div><div class="alert-text">3 new sign-ups via your referral link.</div><div class="alert-time">Apr 7, 11:05</div></div></div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Row 1: Top Clients + Commission Breakdown -->
-        <div class="bottom-grid">
+        </div><!-- /page-dashboard -->
 
+        <!-- ══ MY CLIENTS ═════════════════════════════════════════════════ -->
+        <div id="page-clients" class="page hidden">
+          <div class="page-toolbar">
+            <input type="text" id="clientSearch" class="search-input" placeholder="Search clients..." oninput="searchClients()" />
+            <div class="toolbar-filters">
+              <span class="filter-chip active" onclick="filterStatus(this,'all')">All</span>
+              <span class="filter-chip" onclick="filterStatus(this,'active')">Active</span>
+              <span class="filter-chip" onclick="filterStatus(this,'pending')">Pending</span>
+              <span class="filter-chip" onclick="filterStatus(this,'inactive')">Inactive</span>
+            </div>
+          </div>
           <div class="card">
-            <div class="card-header">
-              <span class="card-title">Top Clients by Volume</span>
-              <span class="card-action">View all →</span>
-            </div>
-            <table class="client-table">
+            <table class="client-table" id="clientsTable">
               <thead>
-                <tr>
-                  <th>Client</th>
-                  <th>Lots Traded</th>
-                  <th>Commission</th>
-                  <th>Status</th>
-                </tr>
+                <tr><th>Client</th><th>Country</th><th>Joined</th><th>Lots</th><th>Commission</th><th>Deposit</th><th>Status</th></tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <div class="client-name">
-                      <div class="mini-avatar" style="background:#1c4f82;color:#58a6ff">DM</div>
-                      David Müller
-                    </div>
-                  </td>
-                  <td>382</td>
-                  <td>$1,146</td>
-                  <td><span class="status-pill active">● Active</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="client-name">
-                      <div class="mini-avatar" style="background:#1b4332;color:#3fb950">SC</div>
-                      Sara Chen
-                    </div>
-                  </td>
-                  <td>295</td>
-                  <td>$885</td>
-                  <td><span class="status-pill active">● Active</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="client-name">
-                      <div class="mini-avatar" style="background:#3d1f00;color:#f0b429">JO</div>
-                      James O'Brien
-                    </div>
-                  </td>
-                  <td>218</td>
-                  <td>$654</td>
-                  <td><span class="status-pill active">● Active</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="client-name">
-                      <div class="mini-avatar" style="background:#2d1f3f;color:#bc8cff">PN</div>
-                      Priya Nair
-                    </div>
-                  </td>
-                  <td>140</td>
-                  <td>$420</td>
-                  <td><span class="status-pill pending">◐ Pending</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="client-name">
-                      <div class="mini-avatar" style="background:#1c1c1c;color:#7d8590">TK</div>
-                      Tomás Kovář
-                    </div>
-                  </td>
-                  <td>88</td>
-                  <td>$264</td>
-                  <td><span class="status-pill inactive">○ Inactive</span></td>
-                </tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1c4f82;color:#58a6ff">DM</div>David Müller</div></td><td>Germany</td><td>Jan 12, 2024</td><td>382</td><td>$1,146</td><td>$12,000</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1b4332;color:#3fb950">SC</div>Sara Chen</div></td><td>Singapore</td><td>Feb 4, 2024</td><td>295</td><td>$885</td><td>$8,500</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#3d1f00;color:#f0b429">JO</div>James O'Brien</div></td><td>Ireland</td><td>Feb 18, 2024</td><td>218</td><td>$654</td><td>$5,000</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#2d1f3f;color:#bc8cff">PN</div>Priya Nair</div></td><td>India</td><td>Mar 1, 2024</td><td>140</td><td>$420</td><td>$3,200</td><td><span class="status-pill pending">◐ Pending</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1c1c1c;color:#7d8590">TK</div>Tomás Kovář</div></td><td>Czech Republic</td><td>Mar 7, 2024</td><td>88</td><td>$264</td><td>$2,000</td><td><span class="status-pill inactive">○ Inactive</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1f3a1c;color:#3fb950">LB</div>Lena Bauer</div></td><td>Austria</td><td>Mar 14, 2024</td><td>204</td><td>$612</td><td>$7,500</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1c2a4f;color:#58a6ff">MR</div>Mohammed Rashid</div></td><td>UAE</td><td>Mar 20, 2024</td><td>175</td><td>$525</td><td>$6,000</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#3f1c1c;color:#f85149">YT</div>Yuki Tanaka</div></td><td>Japan</td><td>Mar 25, 2024</td><td>312</td><td>$936</td><td>$10,000</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#2d2600;color:#f0b429">AL</div>Amara Ly</div></td><td>Senegal</td><td>Apr 1, 2024</td><td>55</td><td>$165</td><td>$1,500</td><td><span class="status-pill pending">◐ Pending</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1c1c2d;color:#bc8cff">FS</div>Florian Schmitt</div></td><td>Germany</td><td>Apr 5, 2024</td><td>0</td><td>$0</td><td>$500</td><td><span class="status-pill inactive">○ Inactive</span></td></tr>
               </tbody>
             </table>
           </div>
+        </div><!-- /page-clients -->
 
+        <!-- ══ TRADING ACTIVITY ════════════════════════════════════════════ -->
+        <div id="page-trading" class="page hidden">
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Total Trades</div><div class="kpi-icon blue">📋</div></div><div class="kpi-value">1,847</div><div class="kpi-change up">▲ 143 &nbsp;<span class="vs">vs last month</span></div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Avg Trade Size</div><div class="kpi-icon gold">⚖️</div></div><div class="kpi-value">1.3 lots</div><div class="kpi-change up">▲ 0.2 &nbsp;<span class="vs">vs last month</span></div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Win Rate</div><div class="kpi-icon green">🎯</div></div><div class="kpi-value">58.4%</div><div class="kpi-change up">▲ 2.1% &nbsp;<span class="vs">vs last month</span></div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Net Client P&amp;L</div><div class="kpi-icon green">💹</div></div><div class="kpi-value">+$41.2K</div><div class="kpi-change up">▲ 12.3% &nbsp;<span class="vs">vs last month</span></div></div>
+          </div>
           <div class="card">
-            <div class="card-header">
-              <span class="card-title">Commission Breakdown</span>
-              <span class="card-action">Download →</span>
+            <div class="card-header"><span class="card-title">Recent Trades</span><span class="card-action">Export CSV →</span></div>
+            <table class="client-table">
+              <thead><tr><th>Client</th><th>Instrument</th><th>Direction</th><th>Lots</th><th>Open</th><th>Close</th><th>P&amp;L</th><th>Time</th></tr></thead>
+              <tbody>
+                <tr><td>David Müller</td><td>EUR/USD</td><td><span class="dir-pill buy">▲ Buy</span></td><td>2.0</td><td>1.08412</td><td>1.08651</td><td style="color:var(--green)">+$47.80</td><td>Today 14:22</td></tr>
+                <tr><td>Sara Chen</td><td>XAU/USD</td><td><span class="dir-pill sell">▼ Sell</span></td><td>0.5</td><td>2,324.10</td><td>2,318.40</td><td style="color:var(--green)">+$28.50</td><td>Today 13:45</td></tr>
+                <tr><td>Yuki Tanaka</td><td>GBP/USD</td><td><span class="dir-pill buy">▲ Buy</span></td><td>3.0</td><td>1.26450</td><td>1.26210</td><td style="color:var(--red)">-$72.00</td><td>Today 12:30</td></tr>
+                <tr><td>James O'Brien</td><td>USD/JPY</td><td><span class="dir-pill sell">▼ Sell</span></td><td>1.0</td><td>151.820</td><td>151.640</td><td style="color:var(--green)">+$11.87</td><td>Today 11:05</td></tr>
+                <tr><td>Mohammed Rashid</td><td>EUR/USD</td><td><span class="dir-pill buy">▲ Buy</span></td><td>1.5</td><td>1.08220</td><td>1.08190</td><td style="color:var(--red)">-$4.50</td><td>Today 10:14</td></tr>
+                <tr><td>Lena Bauer</td><td>US30</td><td><span class="dir-pill buy">▲ Buy</span></td><td>0.2</td><td>38,412</td><td>38,590</td><td style="color:var(--green)">+$35.60</td><td>Today 09:48</td></tr>
+                <tr><td>David Müller</td><td>GBP/JPY</td><td><span class="dir-pill sell">▼ Sell</span></td><td>2.0</td><td>193.420</td><td>193.180</td><td style="color:var(--green)">+$31.60</td><td>Yesterday</td></tr>
+                <tr><td>Sara Chen</td><td>EUR/USD</td><td><span class="dir-pill buy">▲ Buy</span></td><td>1.0</td><td>1.08050</td><td>1.08310</td><td style="color:var(--green)">+$26.00</td><td>Yesterday</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div><!-- /page-trading -->
+
+        <!-- ══ COMMISSION REPORT ═══════════════════════════════════════════ -->
+        <div id="page-commission" class="page hidden">
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">This Month</div><div class="kpi-icon green">💰</div></div><div class="kpi-value">$8,342</div><div class="kpi-change up">▲ 18.4%</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Last Month</div><div class="kpi-icon gold">💰</div></div><div class="kpi-value">$7,044</div><div class="kpi-change up">▲ 5.1%</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">YTD Earnings</div><div class="kpi-icon blue">📊</div></div><div class="kpi-value">$31,820</div><div class="kpi-change up">▲ 22.7%</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Pending Payout</div><div class="kpi-icon gold">⏳</div></div><div class="kpi-value">$8,342</div><div class="kpi-change" style="color:var(--text-muted)">Due Apr 30</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Monthly Commission History</span><span class="card-action">Export →</span></div>
+            <table class="client-table">
+              <thead><tr><th>Month</th><th>Spread Rebates</th><th>Volume Comm.</th><th>Sub-IB Override</th><th>Bonuses</th><th>Total</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Apr 2024</strong></td><td>$4,190</td><td>$2,740</td><td>$982</td><td>$430</td><td><strong style="color:var(--green)">$8,342</strong></td><td><span class="status-pill pending">◐ Pending</span></td></tr>
+                <tr><td>Mar 2024</td><td>$3,512</td><td>$2,104</td><td>$874</td><td>$554</td><td><strong>$7,044</strong></td><td><span class="status-pill active">✓ Paid</span></td></tr>
+                <tr><td>Feb 2024</td><td>$3,108</td><td>$1,962</td><td>$741</td><td>$385</td><td><strong>$6,196</strong></td><td><span class="status-pill active">✓ Paid</span></td></tr>
+                <tr><td>Jan 2024</td><td>$2,940</td><td>$1,801</td><td>$680</td><td>$221</td><td><strong>$5,642</strong></td><td><span class="status-pill active">✓ Paid</span></td></tr>
+                <tr><td>Dec 2023</td><td>$2,716</td><td>$1,590</td><td>$640</td><td>$650</td><td><strong>$5,596</strong></td><td><span class="status-pill active">✓ Paid</span></td></tr>
+                <tr><td>Nov 2023</td><td>$2,450</td><td>$1,440</td><td>$510</td><td>$180</td><td><strong>$4,580</strong></td><td><span class="status-pill active">✓ Paid</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div><!-- /page-commission -->
+
+        <!-- ══ REBATE CALCULATOR ═══════════════════════════════════════════ -->
+        <div id="page-rebate" class="page hidden">
+          <div class="bottom-grid" style="align-items:start">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Rebate Calculator</span></div>
+              <div style="padding:24px;display:flex;flex-direction:column;gap:18px">
+                <div class="form-group" style="margin:0">
+                  <label>Instrument</label>
+                  <select id="calcInstrument" class="settings-input" onchange="selectInstrument()">
+                    <option value="3.00">EUR/USD ($3.00 / lot)</option>
+                    <option value="3.50">GBP/USD ($3.50 / lot)</option>
+                    <option value="4.00">XAU/USD ($4.00 / lot)</option>
+                    <option value="2.50">USD/JPY ($2.50 / lot)</option>
+                    <option value="5.00">US30 ($5.00 / lot)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label>Number of Lots</label>
+                  <input type="number" id="calcLots" class="settings-input" placeholder="e.g. 100" min="0" oninput="calcRebate()" />
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label>Rebate Rate (USD / lot)</label>
+                  <input type="number" id="calcRate" class="settings-input" placeholder="3.00" step="0.01" min="0" value="3.00" oninput="calcRebate()" />
+                </div>
+                <div class="calc-result-box">
+                  <div class="calc-label">Estimated Commission</div>
+                  <div class="calc-value" id="calcResult">$0.00</div>
+                </div>
+              </div>
             </div>
-            <div class="commission-list">
-              <div class="commission-item">
-                <div class="comm-left">
-                  <div class="comm-dot" style="background:#3fb950"></div>
-                  <div>
-                    <div class="comm-name">Spread Rebates</div>
-                    <div class="comm-sub">FX Majors · 63 traders</div>
-                  </div>
-                </div>
-                <div class="comm-amount" style="color:var(--green)">$4,190</div>
-              </div>
-              <div class="commission-item">
-                <div class="comm-left">
-                  <div class="comm-dot" style="background:#f0b429"></div>
-                  <div>
-                    <div class="comm-name">Volume Commission</div>
-                    <div class="comm-sub">Metals &amp; Indices</div>
-                  </div>
-                </div>
-                <div class="comm-amount" style="color:var(--primary)">$2,740</div>
-              </div>
-              <div class="commission-item">
-                <div class="comm-left">
-                  <div class="comm-dot" style="background:#58a6ff"></div>
-                  <div>
-                    <div class="comm-name">Sub-IB Override</div>
-                    <div class="comm-sub">Tier 2 · 8 sub-IBs</div>
-                  </div>
-                </div>
-                <div class="comm-amount" style="color:var(--blue)">$982</div>
-              </div>
-              <div class="commission-item">
-                <div class="comm-left">
-                  <div class="comm-dot" style="background:#bc8cff"></div>
-                  <div>
-                    <div class="comm-name">New Client Bonus</div>
-                    <div class="comm-sub">12 new deposits</div>
-                  </div>
-                </div>
-                <div class="comm-amount" style="color:#bc8cff">$430</div>
-              </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Rebate Rate Table</span></div>
+              <table class="client-table">
+                <thead><tr><th>Instrument</th><th>Group</th><th>Your Rate</th></tr></thead>
+                <tbody>
+                  <tr><td>EUR/USD</td><td>FX Majors</td><td style="color:var(--green)">$3.00 / lot</td></tr>
+                  <tr><td>GBP/USD</td><td>FX Majors</td><td style="color:var(--green)">$3.50 / lot</td></tr>
+                  <tr><td>USD/JPY</td><td>FX Majors</td><td style="color:var(--green)">$2.50 / lot</td></tr>
+                  <tr><td>AUD/USD</td><td>FX Majors</td><td style="color:var(--green)">$2.50 / lot</td></tr>
+                  <tr><td>XAU/USD</td><td>Metals</td><td style="color:var(--primary)">$4.00 / lot</td></tr>
+                  <tr><td>XAG/USD</td><td>Metals</td><td style="color:var(--primary)">$3.00 / lot</td></tr>
+                  <tr><td>US30</td><td>Indices</td><td style="color:var(--blue)">$5.00 / lot</td></tr>
+                  <tr><td>NAS100</td><td>Indices</td><td style="color:var(--blue)">$5.00 / lot</td></tr>
+                </tbody>
+              </table>
             </div>
-            <div class="payout-bar-wrap">
-              <div class="payout-bar-label">
-                Payout progress this month
-                <span>$8,342 / $10,000</span>
+          </div>
+        </div><!-- /page-rebate -->
+
+        <!-- ══ STATEMENTS ══════════════════════════════════════════════════ -->
+        <div id="page-statements" class="page hidden">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Monthly Statements</span><span class="card-action">Download All →</span></div>
+            <div class="statements-list">
+              <div class="statement-item"><div class="stmt-left"><div class="stmt-icon">📄</div><div><div class="stmt-name">April 2024 Statement</div><div class="stmt-sub">Generated Apr 30, 2024 · PDF</div></div></div><div class="stmt-right"><span class="stmt-amount">$8,342</span><button class="copy-btn">Download</button></div></div>
+              <div class="statement-item"><div class="stmt-left"><div class="stmt-icon">📄</div><div><div class="stmt-name">March 2024 Statement</div><div class="stmt-sub">Generated Mar 31, 2024 · PDF</div></div></div><div class="stmt-right"><span class="stmt-amount">$7,044</span><button class="copy-btn">Download</button></div></div>
+              <div class="statement-item"><div class="stmt-left"><div class="stmt-icon">📄</div><div><div class="stmt-name">February 2024 Statement</div><div class="stmt-sub">Generated Feb 29, 2024 · PDF</div></div></div><div class="stmt-right"><span class="stmt-amount">$6,196</span><button class="copy-btn">Download</button></div></div>
+              <div class="statement-item"><div class="stmt-left"><div class="stmt-icon">📄</div><div><div class="stmt-name">January 2024 Statement</div><div class="stmt-sub">Generated Jan 31, 2024 · PDF</div></div></div><div class="stmt-right"><span class="stmt-amount">$5,642</span><button class="copy-btn">Download</button></div></div>
+              <div class="statement-item"><div class="stmt-left"><div class="stmt-icon">📄</div><div><div class="stmt-name">December 2023 Statement</div><div class="stmt-sub">Generated Dec 31, 2023 · PDF</div></div></div><div class="stmt-right"><span class="stmt-amount">$5,596</span><button class="copy-btn">Download</button></div></div>
+              <div class="statement-item"><div class="stmt-left"><div class="stmt-icon">📄</div><div><div class="stmt-name">November 2023 Statement</div><div class="stmt-sub">Generated Nov 30, 2023 · PDF</div></div></div><div class="stmt-right"><span class="stmt-amount">$4,580</span><button class="copy-btn">Download</button></div></div>
+            </div>
+          </div>
+        </div><!-- /page-statements -->
+
+        <!-- ══ REFERRAL LINKS ══════════════════════════════════════════════ -->
+        <div id="page-referral" class="page hidden">
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Total Clicks</div><div class="kpi-icon blue">🔗</div></div><div class="kpi-value">1,204</div><div class="kpi-change up">▲ 84 &nbsp;<span class="vs">this month</span></div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Sign Ups</div><div class="kpi-icon green">✅</div></div><div class="kpi-value">158</div><div class="kpi-change up">▲ 12 &nbsp;<span class="vs">this month</span></div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Converted</div><div class="kpi-icon gold">💰</div></div><div class="kpi-value">91</div><div class="kpi-change up">▲ 7 &nbsp;<span class="vs">this month</span></div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Conversion Rate</div><div class="kpi-icon blue">📈</div></div><div class="kpi-value">57.6%</div><div class="kpi-change up">▲ 3.2%</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Your Referral Links</span><span class="card-action">+ New Link</span></div>
+            <div class="referral-links-list">
+              <div class="ref-link-item">
+                <div class="ref-link-info"><div class="ref-link-label">Primary Link</div><div class="referral-url" style="margin-top:6px">https://fxbridge.com/ref/IB-AJ-28471</div></div>
+                <div class="ref-link-stats"><div class="ref-stat-mini"><span style="color:var(--primary)">312</span> clicks</div><div class="ref-stat-mini"><span style="color:var(--blue)">41</span> signups</div><div class="ref-stat-mini"><span style="color:var(--green)">28</span> funded</div></div>
+                <button class="copy-btn" onclick="copyRef(this,'https://fxbridge.com/ref/IB-AJ-28471')">Copy</button>
               </div>
-              <div class="bar-track" style="height:10px;border-radius:6px">
-                <div class="bar-fill" style="width:83.4%"></div>
+              <div class="ref-link-item">
+                <div class="ref-link-info"><div class="ref-link-label">Forex Campaign</div><div class="referral-url" style="margin-top:6px">https://fxbridge.com/ref/IB-AJ-FX2024</div></div>
+                <div class="ref-link-stats"><div class="ref-stat-mini"><span style="color:var(--primary)">540</span> clicks</div><div class="ref-stat-mini"><span style="color:var(--blue)">72</span> signups</div><div class="ref-stat-mini"><span style="color:var(--green)">41</span> funded</div></div>
+                <button class="copy-btn" onclick="copyRef(this,'https://fxbridge.com/ref/IB-AJ-FX2024')">Copy</button>
+              </div>
+              <div class="ref-link-item">
+                <div class="ref-link-info"><div class="ref-link-label">Gold Trading</div><div class="referral-url" style="margin-top:6px">https://fxbridge.com/ref/IB-AJ-GOLD</div></div>
+                <div class="ref-link-stats"><div class="ref-stat-mini"><span style="color:var(--primary)">352</span> clicks</div><div class="ref-stat-mini"><span style="color:var(--blue)">45</span> signups</div><div class="ref-stat-mini"><span style="color:var(--green)">22</span> funded</div></div>
+                <button class="copy-btn" onclick="copyRef(this,'https://fxbridge.com/ref/IB-AJ-GOLD')">Copy</button>
               </div>
             </div>
           </div>
+        </div><!-- /page-referral -->
 
-        </div>
-
-        <!-- Row 2: Volume by Instrument + Referral + Alerts -->
-        <div class="bottom-grid">
-
+        <!-- ══ PARTNER NETWORK ═════════════════════════════════════════════ -->
+        <div id="page-network" class="page hidden">
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Sub-IBs</div><div class="kpi-icon gold">🤝</div></div><div class="kpi-value">8</div><div class="kpi-change up">▲ 2 &nbsp;<span class="vs">this month</span></div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Network Clients</div><div class="kpi-icon blue">👥</div></div><div class="kpi-value">314</div><div class="kpi-change up">▲ 28</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Override Earned</div><div class="kpi-icon green">💵</div></div><div class="kpi-value">$982</div><div class="kpi-change up">▲ 12.4%</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-label">Network Volume</div><div class="kpi-icon gold">📊</div></div><div class="kpi-value">1.02M lots</div><div class="kpi-change up">▲ 9.1%</div></div>
+          </div>
           <div class="card">
-            <div class="card-header">
-              <span class="card-title">Volume by Instrument</span>
-              <span class="card-action" style="color:var(--text-muted);cursor:default">Lots traded</span>
+            <div class="card-header"><span class="card-title">Sub-IB Partners</span><span class="card-action">Invite Partner →</span></div>
+            <table class="client-table">
+              <thead><tr><th>Partner</th><th>Country</th><th>Clients</th><th>Volume</th><th>Override</th><th>Joined</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1c4f82;color:#58a6ff">HR</div>Hassan Raza</div></td><td>Pakistan</td><td>52</td><td>4,812</td><td>$288</td><td>Aug 2023</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1b4332;color:#3fb950">KV</div>Kiri Voss</div></td><td>Netherlands</td><td>44</td><td>3,920</td><td>$235</td><td>Sep 2023</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#3d1f00;color:#f0b429">BI</div>Bruno Ibarra</div></td><td>Mexico</td><td>38</td><td>2,610</td><td>$157</td><td>Oct 2023</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#2d1f3f;color:#bc8cff">NP</div>Natasha Petrov</div></td><td>Russia</td><td>31</td><td>1,980</td><td>$119</td><td>Nov 2023</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1c2a4f;color:#58a6ff">OA</div>Ola Abebe</div></td><td>Ethiopia</td><td>28</td><td>1,440</td><td>$86</td><td>Dec 2023</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1f3a1c;color:#3fb950">JL</div>Jin Li</div></td><td>China</td><td>62</td><td>5,200</td><td>$312</td><td>Jan 2024</td><td><span class="status-pill active">● Active</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#1c1c1c;color:#7d8590">GF</div>George Friel</div></td><td>Australia</td><td>19</td><td>820</td><td>$49</td><td>Feb 2024</td><td><span class="status-pill pending">◐ Pending</span></td></tr>
+                <tr><td><div class="client-name"><div class="mini-avatar" style="background:#2d2600;color:#f0b429">AK</div>Aiko Kato</div></td><td>Japan</td><td>40</td><td>2,140</td><td>$128</td><td>Mar 2024</td><td><span class="status-pill active">● Active</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div><!-- /page-network -->
+
+        <!-- ══ MARKETING TOOLS ═════════════════════════════════════════════ -->
+        <div id="page-marketing" class="page hidden">
+          <div class="marketing-grid">
+            <div class="card marketing-card"><div class="mkt-icon" style="background:var(--blue-dim);color:var(--blue)">🖼️</div><div class="mkt-title">Web Banners</div><div class="mkt-sub">728×90, 300×250, 160×600 · 12 designs</div><button class="copy-btn mkt-btn">Download Pack</button></div>
+            <div class="card marketing-card"><div class="mkt-icon" style="background:var(--green-dim);color:var(--green)">📧</div><div class="mkt-title">Email Templates</div><div class="mkt-sub">HTML responsive · 6 templates</div><button class="copy-btn mkt-btn">Download Pack</button></div>
+            <div class="card marketing-card"><div class="mkt-icon" style="background:var(--primary-dim);color:var(--primary)">📱</div><div class="mkt-title">Social Media Kit</div><div class="mkt-sub">Instagram, Facebook, Twitter · 24 posts</div><button class="copy-btn mkt-btn">Download Pack</button></div>
+            <div class="card marketing-card"><div class="mkt-icon" style="background:var(--blue-dim);color:var(--blue)">🌐</div><div class="mkt-title">Landing Pages</div><div class="mkt-sub">3 pre-built pages · Custom domain</div><button class="copy-btn mkt-btn">Manage Pages</button></div>
+            <div class="card marketing-card"><div class="mkt-icon" style="background:var(--red-dim);color:var(--red)">🎥</div><div class="mkt-title">Video Ads</div><div class="mkt-sub">15s &amp; 30s · MP4 · 4 languages</div><button class="copy-btn mkt-btn">Download Pack</button></div>
+            <div class="card marketing-card"><div class="mkt-icon" style="background:var(--green-dim);color:var(--green)">📊</div><div class="mkt-title">Pitch Deck</div><div class="mkt-sub">PowerPoint &amp; PDF · Updated monthly</div><button class="copy-btn mkt-btn">Download</button></div>
+          </div>
+        </div><!-- /page-marketing -->
+
+        <!-- ══ SETTINGS ════════════════════════════════════════════════════ -->
+        <div id="page-settings" class="page hidden">
+          <div class="settings-grid">
+            <div class="card settings-section">
+              <div class="card-header"><span class="card-title">Account Information</span></div>
+              <div class="settings-body">
+                <div class="success-msg" id="settingsSaved" style="margin-bottom:16px">Settings saved successfully.</div>
+                <div class="form-group"><label>Full Name</label><input type="text" id="settingsName" class="settings-input" /></div>
+                <div class="form-group"><label>Email Address</label><input type="email" id="settingsEmail" class="settings-input" /></div>
+                <div class="form-group"><label>IB Code</label><input type="text" class="settings-input" value="IB-AJ-28471" disabled style="opacity:0.5;cursor:not-allowed" /></div>
+                <button class="btn-save" onclick="saveSettings()">Save Changes</button>
+              </div>
             </div>
-            <div class="bar-chart-wrap">
-              <div class="bar-row">
-                <div class="bar-label">EUR/USD</div>
-                <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
-                <div class="bar-val">682</div>
+
+            <div class="card settings-section">
+              <div class="card-header"><span class="card-title">Appearance</span></div>
+              <div class="settings-body">
+                <div class="setting-row">
+                  <div><div class="setting-label">Theme</div><div class="setting-sub">Switch between dark and light mode</div></div>
+                  <button class="copy-btn" onclick="toggleTheme()">Toggle</button>
+                </div>
               </div>
-              <div class="bar-row">
-                <div class="bar-label">GBP/USD</div>
-                <div class="bar-track"><div class="bar-fill" style="width:74%"></div></div>
-                <div class="bar-val">505</div>
+            </div>
+
+            <div class="card settings-section">
+              <div class="card-header"><span class="card-title">Notifications</span></div>
+              <div class="settings-body">
+                <div class="setting-row"><div><div class="setting-label">Commission Payouts</div><div class="setting-sub">Email when commission is paid</div></div><label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+                <div class="setting-row"><div><div class="setting-label">New Client Sign Ups</div><div class="setting-sub">Alert for referral conversions</div></div><label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+                <div class="setting-row"><div><div class="setting-label">Monthly Statements</div><div class="setting-sub">Email when statement is ready</div></div><label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+                <div class="setting-row"><div><div class="setting-label">Marketing Updates</div><div class="setting-sub">New assets and promotions</div></div><label class="toggle-switch"><input type="checkbox" /><span class="toggle-slider"></span></label></div>
               </div>
-              <div class="bar-row">
-                <div class="bar-label">XAU/USD</div>
-                <div class="bar-track"><div class="bar-fill" style="width:58%"></div></div>
-                <div class="bar-val">396</div>
-              </div>
-              <div class="bar-row">
-                <div class="bar-label">USD/JPY</div>
-                <div class="bar-track"><div class="bar-fill" style="width:44%"></div></div>
-                <div class="bar-val">300</div>
-              </div>
-              <div class="bar-row">
-                <div class="bar-label">US30</div>
-                <div class="bar-track"><div class="bar-fill" style="width:28%"></div></div>
-                <div class="bar-val">191</div>
-              </div>
-              <div class="bar-row">
-                <div class="bar-label">Other</div>
-                <div class="bar-track"><div class="bar-fill" style="width:21%"></div></div>
-                <div class="bar-val">143</div>
+            </div>
+
+            <div class="card settings-section">
+              <div class="card-header"><span class="card-title">Security</span></div>
+              <div class="settings-body">
+                <div class="form-group"><label>Current Password</label><input type="password" class="settings-input" placeholder="••••••••" /></div>
+                <div class="form-group"><label>New Password</label><input type="password" class="settings-input" placeholder="Min. 8 characters" /></div>
+                <div class="form-group"><label>Confirm New Password</label><input type="password" class="settings-input" placeholder="Min. 8 characters" /></div>
+                <button class="btn-save">Update Password</button>
               </div>
             </div>
           </div>
+        </div><!-- /page-settings -->
 
-          <div style="display:flex;flex-direction:column;gap:16px">
+        <!-- ══ SUPPORT ════════════════════════════════════════════════════ -->
+        <div id="page-support" class="page hidden">
+          <div class="bottom-grid" style="align-items:start">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Frequently Asked Questions</span></div>
+              <div class="faq-list">
+                <div class="faq-item">
+                  <div class="faq-q" onclick="toggleFaq(this)"><span>When are commissions paid?</span><span class="faq-arrow">›</span></div>
+                  <div class="faq-a">Commissions are calculated monthly and paid within 5 business days after month-end. You'll receive an email confirmation when the payment is processed.</div>
+                </div>
+                <div class="faq-item">
+                  <div class="faq-q" onclick="toggleFaq(this)"><span>How do I track my referrals?</span><span class="faq-arrow">›</span></div>
+                  <div class="faq-a">All referrals are tracked via your unique referral links. You can view real-time stats on the Referral Links page, including clicks, sign-ups, and funded accounts.</div>
+                </div>
+                <div class="faq-item">
+                  <div class="faq-q" onclick="toggleFaq(this)"><span>What is the Sub-IB override rate?</span><span class="faq-arrow">›</span></div>
+                  <div class="faq-a">You earn a 6% override on all commissions generated by your sub-IB partners. This is automatically calculated and included in your monthly commission report.</div>
+                </div>
+                <div class="faq-item">
+                  <div class="faq-q" onclick="toggleFaq(this)"><span>How do I add a new referral link?</span><span class="faq-arrow">›</span></div>
+                  <div class="faq-a">Go to the Referral Links page and click "+ New Link". You can name each link for tracking purposes (e.g. by campaign or platform).</div>
+                </div>
+                <div class="faq-item">
+                  <div class="faq-q" onclick="toggleFaq(this)"><span>What payment methods are available?</span><span class="faq-arrow">›</span></div>
+                  <div class="faq-a">We support bank wire transfer, USDT (TRC-20 and ERC-20), and internal wallet transfer. Payment method can be changed in Account Settings.</div>
+                </div>
+              </div>
+            </div>
 
             <div class="card">
-              <div class="card-header">
-                <span class="card-title">Your Referral Link</span>
-                <span class="card-action">Manage links →</span>
-              </div>
-              <div class="referral-box">
-                <div class="referral-url-wrap">
-                  <div class="referral-url">https://fxbridge.com/ref/IB-AJ-28471</div>
-                  <button class="copy-btn" onclick="copyRef(this)">Copy</button>
+              <div class="card-header"><span class="card-title">Contact Support</span></div>
+              <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+                <div class="success-msg" id="supportSent">Your message has been sent. We'll respond within 24 hours.</div>
+                <div class="form-group" style="margin:0"><label>Subject</label><input type="text" class="settings-input" placeholder="e.g. Commission query" /></div>
+                <div class="form-group" style="margin:0"><label>Priority</label>
+                  <select class="settings-input"><option>Normal</option><option>High</option><option>Urgent</option></select>
                 </div>
-                <div class="referral-stats">
-                  <div class="ref-stat">
-                    <div class="ref-stat-val" style="color:var(--primary)">312</div>
-                    <div class="ref-stat-label">Link Clicks</div>
-                  </div>
-                  <div class="ref-stat">
-                    <div class="ref-stat-val" style="color:var(--blue)">41</div>
-                    <div class="ref-stat-label">Sign Ups</div>
-                  </div>
-                  <div class="ref-stat">
-                    <div class="ref-stat-val" style="color:var(--green)">28</div>
-                    <div class="ref-stat-label">Deposited</div>
-                  </div>
+                <div class="form-group" style="margin:0">
+                  <label>Message</label>
+                  <textarea id="supportMsg" class="settings-input" rows="5" placeholder="Describe your issue..." style="resize:vertical"></textarea>
                 </div>
+                <button class="btn-save" onclick="submitSupport()">Send Message</button>
+                <div style="text-align:center;font-size:12px;color:var(--text-muted)">Or email us at <strong style="color:var(--primary)">ib@fxbridge.com</strong></div>
               </div>
             </div>
-
-            <div class="card">
-              <div class="card-header">
-                <span class="card-title">Recent Alerts</span>
-                <span class="card-action">View all →</span>
-              </div>
-              <div class="alert-list">
-                <div class="alert-item">
-                  <div class="alert-dot" style="background:var(--green)"></div>
-                  <div>
-                    <div class="alert-text">Commission payout of <strong>$4,190</strong> processed successfully.</div>
-                    <div class="alert-time">Today, 09:14</div>
-                  </div>
-                </div>
-                <div class="alert-item">
-                  <div class="alert-dot" style="background:var(--primary)"></div>
-                  <div>
-                    <div class="alert-text"><strong>Priya Nair</strong> completed KYC verification — now active.</div>
-                    <div class="alert-time">Yesterday, 17:32</div>
-                  </div>
-                </div>
-                <div class="alert-item">
-                  <div class="alert-dot" style="background:var(--blue)"></div>
-                  <div>
-                    <div class="alert-text">3 new sign-ups via your referral link this week.</div>
-                    <div class="alert-time">Apr 7, 11:05</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
-        </div>
+        </div><!-- /page-support -->
+
+        <!-- ══ PROFILE ════════════════════════════════════════════════════ -->
+        <div id="page-profile" class="page hidden">
+          <div class="profile-layout">
+            <div class="card profile-card">
+              <div class="profile-hero">
+                <div class="profile-avatar-lg" id="profileAvatar">AJ</div>
+                <div class="profile-name" id="profileName">Alex Johnson</div>
+                <div class="profile-badge">IB Manager · Tier 2 Silver</div>
+                <div class="profile-email-line" id="profileEmail">alex@example.com</div>
+              </div>
+              <div class="profile-stats">
+                <div class="profile-stat"><div class="profile-stat-val" style="color:var(--primary)">147</div><div class="profile-stat-label">Clients</div></div>
+                <div class="profile-stat"><div class="profile-stat-val" style="color:var(--green)">$31.8K</div><div class="profile-stat-label">YTD Earned</div></div>
+                <div class="profile-stat"><div class="profile-stat-val" style="color:var(--blue)">8</div><div class="profile-stat-label">Sub-IBs</div></div>
+              </div>
+              <div style="padding:0 20px 20px">
+                <button class="btn-save" style="width:100%" onclick="navigate('settings', document.querySelector('[data-page=settings]'))">Edit Profile</button>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:16px;flex:1;min-width:0">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Account Details</span></div>
+                <div class="profile-details">
+                  <div class="detail-row"><span class="detail-label">IB Code</span><span class="detail-val">IB-AJ-28471</span></div>
+                  <div class="detail-row"><span class="detail-label">Partner Tier</span><span class="detail-val" style="color:var(--primary)">Tier 2 — Silver</span></div>
+                  <div class="detail-row"><span class="detail-label">Member Since</span><span class="detail-val">January 2024</span></div>
+                  <div class="detail-row"><span class="detail-label">Payment Method</span><span class="detail-val">Bank Wire Transfer</span></div>
+                  <div class="detail-row"><span class="detail-label">Next Payout</span><span class="detail-val" style="color:var(--green)">Apr 30, 2024</span></div>
+                  <div class="detail-row"><span class="detail-label">Account Status</span><span class="detail-val"><span class="status-pill active">● Active</span></span></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><span class="card-title">Recent Activity</span></div>
+                <div class="alert-list">
+                  <div class="alert-item"><div class="alert-dot" style="background:var(--green)"></div><div><div class="alert-text">Commission payout of <strong>$4,190</strong> processed.</div><div class="alert-time">Today, 09:14</div></div></div>
+                  <div class="alert-item"><div class="alert-dot" style="background:var(--primary)"></div><div><div class="alert-text">Profile updated successfully.</div><div class="alert-time">Apr 8, 16:20</div></div></div>
+                  <div class="alert-item"><div class="alert-dot" style="background:var(--blue)"></div><div><div class="alert-text">New sub-IB <strong>Aiko Kato</strong> joined your network.</div><div class="alert-time">Apr 5, 11:00</div></div></div>
+                  <div class="alert-item"><div class="alert-dot" style="background:var(--blue)"></div><div><div class="alert-text">March 2024 statement available for download.</div><div class="alert-time">Apr 1, 08:30</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /page-profile -->
 
       </div><!-- /content -->
     </div><!-- /main-area -->
