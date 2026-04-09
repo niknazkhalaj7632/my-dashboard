@@ -18,6 +18,14 @@ function showScreen(screen) {
   }
 }
 
+// ─── Email Sanitiser ──────────────────────────────────────────────────────────
+
+function isValidEmail(email) {
+  // Must have exactly one @, a domain with at least one dot, no spaces,
+  // and only safe characters in local and domain parts.
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
 // ─── Login ────────────────────────────────────────────────────────────────────
 
 function handleLogin() {
@@ -27,6 +35,12 @@ function handleLogin() {
 
   if (!email || !pass) {
     err.textContent = 'Please enter your email and password.';
+    err.style.display = 'block';
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    err.textContent = 'Please enter a valid email address (e.g. you@example.com).';
     err.style.display = 'block';
     return;
   }
@@ -57,6 +71,12 @@ function handleSignup() {
 
   if (!name || !email || !pass) {
     err.textContent = 'Please fill in all fields.';
+    err.style.display = 'block';
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    err.textContent = 'Please enter a valid email address (e.g. you@example.com).';
     err.style.display = 'block';
     return;
   }
